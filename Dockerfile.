@@ -1,0 +1,14 @@
+# Используем официальный образ PHP с поддержкой Apache (можете выбрать нужную версию PHP)
+FROM php:8.1-apache
+
+# Копируем все файлы проекта в каталог веб-сервера (document root)
+COPY . /var/www/html/
+
+# Если необходимо, включите модуль mod_rewrite (для красивых URL и т.д.)
+RUN a2enmod rewrite
+
+# Опционально: настройте конфигурацию PHP или Apache, если требуется
+# COPY config/php.ini /usr/local/etc/php/
+
+# Контейнер будет слушать порт 80 (по умолчанию для Apache)
+EXPOSE 80
