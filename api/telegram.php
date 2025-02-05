@@ -1,19 +1,44 @@
 <?php
-header("Access-Control-Allow-Origin: https://tverdokhlebalex.github.io/Franchise-Domustroy/");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json");
 
-// Укажите здесь токен вашего бота и ID чата, куда отправлять сообщения
-$botToken = '8026378729:AAHI9BzekY5xetk3Z9TKeLGNGD0VzBN-R7EN';
-$chatId = '721573769';
+// Обработка preflight-запросов CORS (при необходимости)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type");
+    exit;
+}
 
-// Получаем JSON данные из POST запроса
+// Читаем входной JSON
 $data = json_decode(file_get_contents("php://input"), true);
 
 if (!$data) {
     echo json_encode(['success' => false, 'error' => 'Нет полученных данных']);
     exit;
 }
+
+// Проверка обязательных ключей
+$requiredKeys = [
+    'name',
+    'phone',
+    'area',
+    'equipmentCost',
+    'productInvestment',
+    'baseCost',
+    'rentExpensePerMonth',
+    'cooperationFormat',
+    'finalCost'
+];
+foreach ($requiredKeys as $key) {
+    if (!isset($data[$key])) {
+        echo json_encode(['success' => false, 'error' => "Отсутствует ключ: $key"]);
+        exit;
+    }
+}
+
+
+$botToken = '8026378729:AAHI9BzekY5xetk3Z9TKeLGNGD0VzBN-R7E';
+$chatId = '-721573769';
 
 // Формируем текст сообщения
 $message = "Новая заявка на франшизу:\n";
@@ -27,16 +52,15 @@ $message .= "Арендные расходы (мес): " . number_format($data['
 $message .= "Формат сотрудничества: " . $data['cooperationFormat'] . "\n";
 $message .= "Итоговая стоимость: " . number_format($data['finalCost'], 0, '', ' ') . " ₽\n";
 
-// URL запроса к Telegram Bot API
+// Формируем URL для запроса к Telegram Bot API
 $url = "https://api.telegram.org/bot{$botToken}/sendMessage?chat_id={$chatId}&text=" . urlencode($message);
 
-// Отправляем запрос к Telegram API
+// Отправляем запрос к Telegram Bot API
 $response = file_get_contents($url);
 $result = json_decode($response, true);
 
-if ($result && $result['ok']) {
+if ($result && isset($result['ok']) && $result['ok']) {
     echo json_encode(['success' => true]);
 } else {
     echo json_encode(['success' => false, 'error' => 'Ошибка Telegram API']);
 }
-?>
