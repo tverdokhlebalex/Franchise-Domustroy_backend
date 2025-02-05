@@ -1,6 +1,6 @@
 <?php
 // Устанавливаем заголовки CORS для всех запросов
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: https://tverdokhlebalex.github.io/Franchise-Domustroy/");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
